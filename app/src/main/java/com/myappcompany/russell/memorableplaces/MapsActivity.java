@@ -23,6 +23,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,6 +107,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
             }
+        } else {
+            Location placeLocation = new Location(LocationManager.GPS_PROVIDER);
+            placeLocation.setLatitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).latitude);
+            placeLocation.setLongitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).longitude);
+
+            centerMapOnLocation(placeLocation, MainActivity.places.get(intent.getIntExtra("placeNumber",0)));
         }
     }
 
@@ -130,6 +138,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
 
+        if(address.equals("")){
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm yyyy-MM-dd");
+            address += sdf.format(new Date());
+        }
+
         mMap.addMarker(new MarkerOptions().position(latLng).title(address));
+
+        MainActivity.places.add(address);
+        MainActivity.locations.add(latLng);
+
+        MainActivity.arrayAdapter.notifyDataSetChanged();
+
+        Toast.makeText(this, "Location Saved!", Toast.LENGTH_SHORT).show();
     }
 }
